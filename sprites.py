@@ -9,30 +9,35 @@ from pygame.locals import (
 
 class Brick(pygame.sprite.Sprite):
 
-    def __init__(self, width, height, x, y, color):
+    def __init__(self, game, x, y, color):
         super().__init__()
-        self.surface = pygame.Surface((width, height))
-        color = BRICK_COLORS[color]
-        self.surface.fill(color)
-        self.rect = self.surface.get_rect(topleft=(x, y))
+        self.game = game
+        sprite = self.game.brick_sheet.image_at(color, (0,0,0))
+        self.image = pygame.transform.scale(sprite, (64, 32))
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.last_update = pygame.time.get_ticks()
+
+    def update(self):
+        pass
+
+    def flash(self):
+        pass
 
 
 class Paddle(pygame.sprite.Sprite):
 
-    def __init__(self, game, width, height, x, y):
+    def __init__(self, game, x, y):
         super().__init__()
         self.game = game
-        self.surface = pygame.Surface((width, height))
-        self.surface.fill((255, 255, 255))
-        self.rect = self.surface.get_rect(center=(x, y))
+        sprite = self.game.paddle_sheet.image_at(9, (0,0,0))
+        self.image = pygame.transform.scale(sprite, (128, 40))
+        self.rect = self.image.get_rect(center=(x, y))
         self.lives = 3
 
     def update(self):
-        pressed_keys = pygame.key.get_pressed()
-        if pressed_keys[pygame.K_a]:
-            self.rect.move_ip(-15, 0)
-        if pressed_keys[pygame.K_h]:
-            self.rect.move_ip(15, 0)
+        mouse_x = pygame.mouse.get_pos()[0]
+        self.rect.x = mouse_x
+
         # Keep player on screen
         if self.rect.right > WIDTH:
             self.rect.right = WIDTH
@@ -42,35 +47,40 @@ class Paddle(pygame.sprite.Sprite):
 
 class Ball(pygame.sprite.Sprite):
 
-    def __init__(self, game):
+    def __init__(self, assets, game):
         super().__init__()
         self.game = game
-        self.surface = pygame.Surface((20, 20))
-        self.surface.fill((255, 255, 255))
-        self.rect = self.surface.get_rect(
-                midbottom=self.game.player.rect.midtop
-        )
-        # Start in random direction
-        self.dx = 10
-        self.dy = -10
+        sprite = assets.ball_sheet.image_at(4, (0,0,0))
+        self.image = pygame.transform.scale(sprite, (16, 16))
+        self.rect = self.image.get_rect()
+        self.pos = pygame.math.Vector2(self.game.player.rect.midtop)
+        self.reset_speed()
         self.serving = True
 
+    def reset_speed(self):
+        self.vel = pygame.math.Vector2(0, -BALL_SPEED)
+        self.dx = 0
+        self.dy = -BALL_SPEED
+
     def update(self):
+
+        self.prev = self.rect.copy()
 
         # Bounce ball off edge of screen
         if self.rect.top < HUD_SIZE:
             self.rect.top = HUD_SIZE
-            self.dy = - self.dy
+            self.vel.y = -self.vel.y
         if self.rect.left < 0:
             self.rect.left = 0
-            self.dx = - self.dx
+            self.vel.x = -self.vel.x
         if self.rect.right > WIDTH:
             self.rect.right = WIDTH
-            self.dx = - self.dx
+            self.vel.x = -self.vel.x
 
         # Update position
         if self.serving:
-            self.rect.midbottom = self.game.player.rect.midtop
-            self.rect.y -= 2
+            self.pos.update(self.game.player.rect.midtop)
+            self.pos.y -= 10
         else:
-            self.rect.move_ip(self.dx, self.dy)
+            self.pos += self.vel
+        self.rect.center = self.pos

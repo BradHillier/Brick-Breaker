@@ -1,17 +1,10 @@
-import pygame
-from brick_breaker import *
-from menu import *
+from Game import *
+
 
 def main():
-    brick_breaker = Game()
-    brick_breaker.show_title()
-    while brick_breaker.running:
-        brick_breaker.main_menu.run()
-        brick_breaker.new()
-        brick_breaker.show_gameover()
-    pygame.QUIT()
-
+    game = Game()
+    game.run()
+    pygame.quit()
 
 if __name__ == '__main__':
     main()
-

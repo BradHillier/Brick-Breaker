@@ -1,153 +1,158 @@
-import pygame
+import pygame as pg
 import sys
+import math
+import utility as util
+import csv
+import time
+
+from os import path
 from sprites import *
 from settings import *
 from menu import *
-from time import sleep
 
-from pygame.locals import (
-    K_ESCAPE,
-    KEYDOWN,
-    QUIT
-)
+
 
 class BrickBreaker:
     def __init__(self, game):
         self.game = game
+        self.bg = game.bg
+        self.playing = False
 
     def new(self):
-        self.score = 0
-        self.level = 1
-        # Initialize player
-        self.all_sprites = pygame.sprite.Group()
-        self.player = Paddle(self,
-            width = BRICK_WIDTH,
-            height = HEIGHT/25, 
-            x = WIDTH/2, 
-            y = HEIGHT * .95
-        )
-        self.all_sprites.add(self.player)
-        self.ball = Ball(self)
-        self.all_sprites.add(self.ball)
+        if self.playing:
+            pg.mixer.music.unpause()
+        else:
+            self.playing = True
+            self.score = 0
+            self.level = 5
+            pg.mixer.music.load(path.join(self.game.sound_dir,
+                                          'Afterburner.ogg'))
+            pg.mixer.music.play(loops=-1)
+            # Initialize Sprites
+            self.all_sprites = pg.sprite.Group()
+            self.bricks = pg.sprite.Group()
+            self.player = Paddle(self.game, WIDTH/2, HEIGHT-BRICK_HEIGHT)
+            # TODO Ball shouldn't need both Game and BrickBreaker
+            self.ball = Ball(self.game, self)
+            self.all_sprites.add(self.ball, self.player)
+            self.load_level()
 
-        self.bricks = pygame.sprite.Group()
-        self.generate_bricks()
-        self.animate_bricks()
-        self.run()
-
-    def run(self):
-        self.playing = True
-        while self.playing:
-            self.clock.tick(FPS)
-            self.update()
-            self.events()
-            self.draw()
-
-    def generate_bricks(self):
-        for i in range(ROWS):
-            for j in range(COLUMNS):
-                self.bricks.add(Brick(
-                    width = BRICK_WIDTH - BRICK_PADDING / 2,
-                    height = BRICK_HEIGHT - BRICK_PADDING / 2, 
-                    # Haif of brick padding in x centers bricks on screen
-                    x = PADDING + BRICK_PADDING / 2 + j * BRICK_WIDTH ,
-                    y = HUD_SIZE + PADDING + i * BRICK_HEIGHT,
-                    color = (i) % len(BRICK_COLORS)
-                ))
-
-    def animate_bricks(self):
-        self.screen.fill(BG_COLOR)
-        for brick in self.bricks:
-            self.clock.tick(30)
-            self.screen.blit(brick.surface, brick.rect)
-            pygame.display.flip()
+    def load_level(self):
+        """
+        Generate bricks from a tilemap
+        """
+        level_location = path.join(self.game.dir,
+                                   'levels/level_{}.csv'.format(self.level))
+        with open(level_location) as file:
+            level = csv.reader(file)
+            for i, row in enumerate(level):
+                for j, image_number in enumerate(row):
+                    if int(image_number) != -1:
+                        brick = Brick(self.game, 
+                            j * 64,  
+                            i * 32,
+                            int(image_number))
+                        self.bricks.add(brick)
+                        self.all_sprites.add(brick)
+                        # Helps display level text for set period of time
+                        self.level_displayed = False
 
     def update(self):
+        pg.mouse.set_visible(False)
+        if self.playing == False:
+            pg.mixer.music.play(loops=-1)
+            self.new()
 
-        # Check for collisions
+        # Check if gameover
+        if self.player.lives == 0:
+            self.playing = False
+            self.show_gameover()
+
+        # Player Collision
         if self.ball.rect.colliderect(self.player.rect):
-            if self.ball.rect.bottom > self.player.rect.top:
-                self.ball.rect.bottom = self.player.rect.top
-            self.ball.dy = -self.ball.dy
-        hits = pygame.sprite.spritecollide(self.ball, self.bricks, True)
+            self.game.paddle_sound.play()
+            self.ball.rect.bottom = self.player.rect.top
+            self.ball.vel = util.controlled_deflect(self.ball, self.player)
+
+        #Ball collides with Bricks
+        hits = pg.sprite.spritecollide(self.ball, self.bricks, False)
         if hits:
+            self.game.brick_sound.play()
             for brick in hits: 
-                brick.kill()
                 self.score += 1
-            self.ball.dy = -self.ball.dy
+                brick.kill()
+            collision_side = util.collision_helper_AABB(hits[0], self.ball)
+            if collision_side == 'left' or collision_side == 'right':
+                self.ball.vel.x = -self.ball.vel.x
+            elif collision_side == 'top' or collision_side == 'bottom':
+                self.ball.vel.y = -self.ball.vel.y
+
         # Ball Goes off screen
         if self.ball.rect.top > HEIGHT:
             self.player.lives -= 1
             self.ball.serving = True
-            if self.player.lives == 0:
-                self.playing = False
+
         # Level Complete
         if len(self.bricks) == 0:
             self.ball.serving = True
             self.player.rect.center = (WIDTH/2, HEIGHT * .95)
-            self.generate_bricks()
             self.level += 1
-            self.animate_bricks()
+            self.load_level()
+            self.show_level()
 
         self.all_sprites.update()
 
     def events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.running = False
-                self.playing = False
-            if event.type == KEYDOWN:
-                if event.key == pygame.K_SPACE:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                self.game.running = False
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    pg.mixer.music.pause()
+                    self.game.pause_sound.play()
+                    self.game.change_state('pause')
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if event.button  == 1:
                     if self.ball.serving == True:
                         self.ball.serving = False
-                if event.key == pygame.K_ESCAPE:
-                    self.running = False
-                    self.playing = False
 
     def draw(self):
-        self.screen.fill(BG_COLOR)
-        self.screen.blit(self.player.surface, self.player.rect)
-        self.screen.blit(self.ball.surface, self.ball.rect)
+        self.game.screen.blit(self.bg, (0, 0))
+        self.all_sprites.draw(self.game.screen)
+
+        # Heads up display
+        pg.draw.rect(self.game.screen, (0,0,0), (0, 0, WIDTH, HUD_SIZE))
         lives_text = 'Lives: {}'.format(self.player.lives)
-        self.draw_text(lives_text, 28, (255, 255, 255), WIDTH / 4, HUD_SIZE / 2)
+        self.game.draw_text(
+            lives_text, 20, (255, 255, 255), WIDTH / 4, HUD_SIZE / 2)
         score_text = 'Score: {}'.format(self.score)
-        self.draw_text(score_text, 28, (255, 255, 255), WIDTH / 2, HUD_SIZE / 2)
+        self.game.draw_text(
+            score_text, 32, (255, 255, 255), WIDTH / 2, HUD_SIZE / 2)
         level_text = 'Level: {}'.format(self.level)
-        self.draw_text(level_text, 28, (255, 255, 255), WIDTH * 3/4, HUD_SIZE / 2)
-        for brick in self.bricks:
-            self.screen.blit(brick.surface, brick.rect)
-        pygame.display.flip()
+        self.game.draw_text(
+            level_text, 20, (255, 255, 255), WIDTH * 3/4, HUD_SIZE / 2)
+
+        # Text showing current level displayed at the start of each level
+        if self.level_displayed == False:
+            self.level_displayed = pg.time.get_ticks()
+        elif pg.time.get_ticks() - self.level_displayed < 2000:
+            self.show_level() 
+        pg.display.flip()
+
+    def show_level(self):
+        text = 'Level {}'.format(self.level)
+        self.game.draw_text(text, 64, (255, 255, 255), WIDTH/2, HEIGHT*5/8)
+        pg.display.flip()
 
     def show_gameover(self):
-        self.screen.fill(BG_COLOR)
-        self.draw_text('GAME OVER', 86, (255, 255, 255), WIDTH / 2, HEIGHT / 3)
-        pygame.display.flip()
-        sleep(1)
-        self.wait_for_key()
+        pg.mixer.music.stop()
+        self.game.gameover_sound.play()
+        self.game.draw_text('GAME OVER', 86, (255, 255, 255), WIDTH/2, HEIGHT/2)
+        pg.display.flip()
+        pg.time.wait(500)
+        self.game.wait_for_key()
+        self.game.change_state('main_menu')
 
-    def show_title(self):
-        self.screen.fill(BG_COLOR)
-        self.draw_text('Brick Breaker', 64, (255, 255, 255), WIDTH / 2, HEIGHT / 3)
-        self.draw_text('Press any key to play!', 28, (255, 255, 255), WIDTH / 2, HEIGHT/ 2)
-        pygame.display.flip()
-        sleep(0.5)
-        self.wait_for_key()
 
-    def wait_for_key(self):
-        waiting = True
-        while waiting:
-            self.clock.tick(FPS)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
-                    self.playing = False
-                if event.type == pygame.KEYUP:
-                    waiting = False
-    def draw_text(self, text, size, color, x, y):
-        font = pygame.font.Font(self.font_name, size)
-        text_surface = font.render(text, True, color)
-        text_rect = text_surface.get_rect()
-        text_rect.midtop = (x, y)
-        self.screen.blit(text_surface, text_rect)
 
 

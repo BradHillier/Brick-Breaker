@@ -1,23 +1,19 @@
 # Screen
 WIDTH = 1280
 HEIGHT = 800
-PADDING = 20
-HUD_SIZE = 75
-FPS = 30
+HUD_SIZE = 96
+FPS = 60
 BG_COLOR= (28, 28, 28)
-TEXT_COLOR = (255,255,255)
+TEXT_FG = (255,255,255)
+TEXT_BG = (0, 0, 0)
+
+# Ball
+BALL_SPEED = 15
+
+# Buttons
+BUTTON_WIDTH = 200
+BUTTON_HEIGHT = 50
 
 # Bricks
-ROWS = 6
-COLUMNS = 9
-BRICK_PADDING = 10
-BRICK_WIDTH = (WIDTH - PADDING * 2) / COLUMNS
-BRICK_HEIGHT = (HEIGHT / 2 - PADDING * 2 - HUD_SIZE) / ROWS
-BRICK_COLORS = [
-    (187, 1, 67),       # Red
-    (253, 151, 31),     # Orange 
-    (230, 219, 116),    # Yellow
-    (169, 192, 63),     # Green 
-    (102, 217, 239),    # Blue
-    (174, 129, 255),    # Magenta 
-]
+BRICK_WIDTH = 64
+BRICK_HEIGHT = 32
