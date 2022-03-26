@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<psiinstr>
+  <string name="type">tube</string>
+  <int name="height">10</int>
+  <int name="circumference">20</int>
+  <double name="tension">0.475000</double>
+  <double name="speed">0.350000</double>
+  <double name="damping">0.139000</double>
+  <int name="actuation">0</int>
+  <double name="velocity">1.000000</double>
+</psiinstr>
