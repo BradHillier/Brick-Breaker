@@ -128,7 +128,7 @@ class Ball(pg.sprite.DirtySprite):
         # Update position
         if self.serving:
             self.pos.update(self.game.player.rect.midtop)
-            self.pos.y -= 10
+            self.pos.y -= BALL_HEIGHT / 2
         else:
             self.pos += self.vel
         self.rect.center = self.pos
