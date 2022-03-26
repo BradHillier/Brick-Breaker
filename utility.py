@@ -1,6 +1,5 @@
 import pygame
-from settings import BALL_SPEED
-from math import sqrt
+from math import sqrt, inf
 
 
 def collision_helper_AABB(stationary, moving):
@@ -8,13 +7,11 @@ def collision_helper_AABB(stationary, moving):
     Calculates which side of a stationary object a moving
     object collided with using axis-aligned bounding box collision detection.
     """
-    corner_slope_rise = 0
-    corner_slope_run = 0    # TODO somestimes causes a division by zero
-    # Lazy way to avoid division by zero
+    corner_slope_rise, corner_slope_run = 0, 0
     try:
-        velocity_slope = moving.dy / moving.dx
-    except:
-        velocity_slope = moving.dy / 0.0001
+        velocity_slope = moving.vel.y / moving.vel.x
+    except ZeroDivisionError:
+        velocity_slope = inf if moving.vel.y > 0 else -inf
     potential_collision_side = set()
 
     if moving.prev.right <= stationary.rect.left:
@@ -47,8 +44,6 @@ def collision_helper_AABB(stationary, moving):
             return 'top'
         elif moving.prev.top >= stationary.rect.bottom:
             return 'bottom'
-        else:
-            print('NONE')
     if corner_slope_run == 0: corner_slope_run = 0.000001
     # Corner case; Might have collided with more than one side
     return collision_from_slope(potential_collision_side, 
@@ -73,17 +68,21 @@ def collision_from_slope(potential_collision_sides,
             return 'bottom' if velocity_slope > corner_slope else 'left'
         elif 'right' in potential_collision_sides:
             return 'bottom' if velocity_slope < corner_slope else 'left'
+    else:
+        return 'corner'
+
 
 def controlled_deflect(ball, player):
     """
-    Deflect ball at an angle relative to the point of collisions
-    distance from the center of the player
+    Deflect ball at an angle relative to the point of collision's
+    distance from the center of the player; keeps ball at consistent speed
     """
+    ball_speed = sqrt(ball.vel.x ** 2 + ball.vel.y ** 2)
     distance_from_center = ball.rect.centerx - player.rect.centerx
     max_collision_point = (player.rect.width / 2 + ball.rect.width / 2)
     percent_from_max = distance_from_center / max_collision_point
-    # Avoid ball moving in a horizontal line
-    dx = min(BALL_SPEED * percent_from_max, BALL_SPEED * 0.8)
-    dy = -sqrt((BALL_SPEED**2 - dx**2))
+    # min avoids ball moving in a horizontal line
+    dx = min(ball_speed * percent_from_max, ball_speed * 0.8)
+    dy = -sqrt((ball_speed **2 - dx**2))
     return pygame.math.Vector2(dx, dy)
 

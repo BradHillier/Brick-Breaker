@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<psiinstr>
+  <string name="type">rod</string>
+  <int name="length">5</int>
+  <double name="tension">0.500000</double>
+  <double name="speed">0.500000</double>
+  <double name="damping">0.500000</double>
+  <int name="actuation">0</int>
+  <double name="velocity">1.000000</double>
+</psiinstr>

@@ -1,4 +1,5 @@
-from Game import *
+from Game import Game
+import pygame
 
 
 def main():

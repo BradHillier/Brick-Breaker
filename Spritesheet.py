@@ -1,4 +1,3 @@
-
 import pygame
 import math
 import untangle
@@ -17,13 +16,16 @@ class Sheet(object):
             print('Unable to load spritesheet image:', filename)
             raise SystemExit 
 
-    # Load an image from it's associated tile map number
     def image_at(self, img_num, colorkey = None):
+        """
+        Load an image from it's associated tile map number
+        """
         # Determine image position
         image_column = (img_num % int(self.meta['columns']))
         image_row = math.floor(img_num / int(self.meta['columns']))
         x = image_column * int(self.meta['tilewidth'])
         y = image_row * int(self.meta['tileheight'])
+
         # Load image from x, y, x+offset, y+offset
         rect = pygame.Rect(
             x, y, int(self.meta['tilewidth']), int(self.meta['tileheight']))

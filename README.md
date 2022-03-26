@@ -1,9 +1,9 @@
-Broken brick wall stock photo source
-https://webstockreview.net/images/brick-clipart-broken-brick-11.jpg
 
-Space background
-https://wall.alphacoders.com/big.php?i=885542
+IMAGES
+    Space background - https://wall.alphacoders.com/big.php?i=885542
 
-Afterburner
-https://opengameart.org/content/afterburner-music-track
+MUSIC
+    Afterburner - https://opengameart.org/content/afterburner-music-track
 
+levels can be created using Tiled map Editor which is available at: https://mapeditor.org
+they should be placed in the /levels directory with the level\_x.csv
