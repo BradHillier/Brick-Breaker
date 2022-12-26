@@ -26,7 +26,7 @@ class BrickBreaker:
         if type(self.game.prev_state) != PauseMenu:
             self.playing = True
             self.score = 0
-            self.level = 1
+            self.level = 0
             pg.mixer.music.load(path.join(self.game.sound_dir,
                                           'Afterburner.ogg'))
             pg.mixer.music.play(loops=-1)
