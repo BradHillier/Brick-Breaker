@@ -2,7 +2,7 @@ import pygame as pg
 import sys
 import math
 import random
-import utility as util
+import collision as util
 import csv
 import time
 from hud import *
