@@ -17,9 +17,10 @@ class Game:
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         pg.display.toggle_fullscreen()
 
-        self.dir = path.dirname(path.abspath(__file__))
+        self.dir = path.dirname(path.abspath(__file__)) + "/../"
         self.sound_dir = path.join(self.dir, 'assets/sound')
         self.font_dir = path.join(self.dir, 'assets/fonts')
+        self.sprite_sheet_dir = path.join(self.dir, 'assets/spritesheet')
         pg.mixer.init()
         pg.mixer.music.set_volume(0.5)
         self.load_assets()
@@ -37,10 +38,10 @@ class Game:
     def load_assets(self):
 
         # Spritesheets
-        self.brick_sheet = Sheet(path.join(self.dir, 'assets/bricks'))
-        self.paddle_sheet = Sheet(path.join(self.dir, 'assets/paddles'))
-        self.ball_sheet = Sheet(path.join(self.dir, 'assets/balls'))
-        self.powerup_sheet = Sheet(path.join(self.dir, 'assets/powerups'))
+        self.brick_sheet = Sheet(path.join(self.sprite_sheet_dir, 'bricks'))
+        self.paddle_sheet = Sheet(path.join(self.sprite_sheet_dir, 'paddles'))
+        self.ball_sheet = Sheet(path.join(self.sprite_sheet_dir, 'balls'))
+        self.powerup_sheet = Sheet(path.join(self.sprite_sheet_dir, 'powerups'))
 
         # Sounds
         load_sound = lambda x: pg.mixer.Sound(path.join(self.sound_dir, x))
@@ -68,9 +69,9 @@ class Game:
         self.button_font = load_font('Gameplay.ttf', 18)
 
         # Background Images
-        self.bg = load_image("assets/background.png")
-        self.menu_bg = load_image("assets/menu.png")
-        self.space_bg = load_image("assets/space.png")
+        self.bg = load_image("assets/images/background.png")
+        self.menu_bg = load_image("assets/images/menu.png")
+        self.space_bg = load_image("assets/images/space.png")
         self.bg = pg.transform.scale(self.bg, (WIDTH, HEIGHT))
 
     def run(self):
