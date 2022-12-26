@@ -1,7 +1,9 @@
 # Bricker Breaker
 
+![](assets/screenshots/screen_shot.png)
+
 ## Description
-A description of the project, including its purpose and any relevant background information
+Brick breaker is a classic arcade game inspired by Atari's Breakout. The game's goal is to destroy all the bricks on the screen by repeatedly bouncing a ball off a paddle and into them.
 
 ## Installation
 Installation instructions, including any dependencies that need to be installed
