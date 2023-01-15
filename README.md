@@ -15,10 +15,14 @@ Upon destroying a brick, there is a chance it will drop a randomly generated pow
 
 
 <img style="padding-right: 10px" src="assets/screenshots/extra-life.png"></image> **Extra Life:** When collected, this power-up increases the player's lives by 1
+
 <img style="padding-right: 10px" src="assets/screenshots/lose-life.png"></image> **Less Life:** When collected, this power-up decreases the player's lives by 1
+
 <img style="padding-right: 10px" src="assets/screenshots/speed-up.png"></image>  **Speed Up:** When collected, this power-up increases the speed of the ball
+
 <img style="padding-right: 10px" src="assets/screenshots/slow-down.png"></image>  **Slow Down:** When collected, this power-up decreases the speed of the ball
-<img style="padding-right: 10px" src="assets/screenshots/new-ball.png"></image>  **New Ball:** When collected, this power-up adds another ball to the game.
+
+<img style="padding-right: 20px" src="assets/screenshots/new-ball.png"></image>  **New Ball:** When collected, this power-up adds another ball to the game.
 
 ## Menu
 
