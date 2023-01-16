@@ -7,7 +7,7 @@ Brick breaker is a classic arcade game inspired by Atari's Breakout. The game's 
 
 ## Gameplay
 
-The player controls a paddle at the bottom of the screen using their mouse. At the start of the game the player will have to serve the ball by clicking the left mouse button. Bricks only take one hit to destroy. Upon destorying all bricks on the screen, the player will progress to the next level.
+The player controls a paddle at the bottom of the screen using their mouse. At the start of the game, the player will have to serve the ball by clicking the left mouse button. The play can aim the ball by bouncing it off different paddle points. If the ball collides with the center of the paddle, it will rebound straight up. The closer to the edge of the paddle the ball touches, the more of an angle the ball will be deflected at. Bricks only take one hit to destroy. After destroying all the bricks on the screen, the player will progress to the next level.
 
 ### Power-ups
 
@@ -55,14 +55,13 @@ Install the required libraries by running
 pip3 install -r requirements.txt.
 ```
 
-## How to Use
-levels can be created using Tiled map Editor which is available at: https://mapeditor.org
-they should be placed in the /levels directory with the level\_x.csv
-Usage instructions, including any command-line arguments or configuration options
+After installation is complete, the game can be played by running the following command in the root directory of the project
 
-## Known Issues
+```bash
+python3 src/main.py
+```
 
-## Contributions
+## Credits
 
 **Spritesheets Used**
     Breakout set - https://opengameart.org/content/breakout-set
